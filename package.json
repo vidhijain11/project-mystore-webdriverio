@@ -1,0 +1,40 @@
+{
+  "name": "project-mystore-webdriverio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx wdio run wdio.conf.js",
+    "smoke": "npx wdio run wdio.conf.js"
+  },
+  "author": "Vidhi Jain",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@wdio/cli": "^7.2.1",
+    "allure-commandline": "^2.13.8"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  },
+  "devDependencies": {
+    "@babel/register": "^7.13.8",
+    "@wdio/allure-reporter": "^7.3.0",
+    "@wdio/local-runner": "^7.2.1",
+    "@wdio/mocha-framework": "^7.2.1",
+    "@wdio/selenium-standalone-service": "^7.2.1",
+    "@wdio/spec-reporter": "^7.2.1",
+    "@wdio/sync": "^7.2.1"
+  }
+}
