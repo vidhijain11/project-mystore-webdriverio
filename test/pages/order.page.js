@@ -1,13 +1,10 @@
-import basePage from "./base.page";
+import basePage from "./page";
 
 class OrderPage extends basePage {
 
-    //shipping page - error message alert terms of service
     get msgTOS() { return $("//p[text()='You must agree to the terms of service before continuing.']") };
-    //close error alert
     get lnkClose() { return $(".fancybox-item fancybox-close") };
-    //check box Agree terms of service
-    get cbAgreeTOS() { return $("#cgv") };
+    get cbAgreeTOS() { return $("#uniform-cgv") };
     get btnCheckOut() { return $("//p[contains(@class,'cart_navigation')]//span[contains(text(),'Proceed to checkout')]") };
     get lblItemName() { return $(".cart_description > .product-name > a") }
     get lblItemSize() { return $(".cart_description > small:nth-child(3) >a") }

@@ -2,9 +2,9 @@ import general from "../utils/general"
 
 let randomNum = general.getRandomNum();
 
-class AccountData {
+class DataProvider {
 
-    get _validUser() {
+    get validUser() {
         return {
             "Salutation" : "Mr",
             "FN" : "john",
@@ -27,47 +27,54 @@ class AccountData {
             "State" : "Indiana",
             "PostCode" : "20001",
             "Country" : "United States",
-            "AddInfo"  : "Enter additional information here",
+            "AddInfo"  : "Enter addional information here",
             "HomePhone" : "9876543217",
             "MobNo" : "9865434671",
             "Alias" : "Enter address alias"
         }
     }
 
-    get _prereqUser() {
-        return {  
-            "Salutation" : "Mr",    
+    get prereqUser() {
+        return {      
             "FN" : "Jan",
             "LN" : "Marry",
             "Email" : "j3@test.com",
             "Passwd" : "JanMarry@2020",
-            "DOB" : {
-                "day" : "9",
-                "month" : "4",
-                "year" : "1993"
-            },
-            "Company": "",
             "Address": {
-                "L1" : "23, wow street",
-                "L2" : ""
+                "L1" : "23, wow street"
             },
             "City" : "Indusland",
             "State" : "California",
             "PostCode" : "00004",
             "Country" : "United States",
-            "AddInfo"  : "",
-            "HomePhone" : "",
-            "MobNo" : "89787878",
-            "Alias" : ""
+            "MobNo" : "89787878"
         }
     }
-    get _item1(){
+    get item(){
         return {
-            "Name" : "Printed Dress",
-            "Price": "$26.00",
-            "SizeColor":"Color : Orange, Size : S"
+            1 : {
+                "Name" : "Printed Dress",
+                "Price": "$26.00",
+                "SizeColor":"Color : Orange, Size : S"
+            },
+
+            2 : {
+                "Name" : "Faded Short Sleeve T-shirts"
+            }
         }
     
     }
+
+    get contactInfo() {
+        return {
+            "Subject" : "Customer service",
+            "Email" : "Invalid@test.com",
+            "OrderRef" : "1234",
+            "FileName" : 'productIssue.jpg',
+            "Message" : 'Please refer to attached product issue'
+        }
+    } 
+
+    
 }
-export default new AccountData();
+export default new DataProvider();

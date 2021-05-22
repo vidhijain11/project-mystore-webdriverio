@@ -1,4 +1,4 @@
-import basePage from "./base.page"
+import basePage from "./page"
 
 class RegisterPage extends basePage {
 
@@ -12,8 +12,8 @@ class RegisterPage extends basePage {
     get ddDays() { return $("#days") };
     get ddMonths() { return $("#months") };
     get ddYears() { return $("#years") };
-    get cbNewsLetter() { return $("#newsletter") };
-    get cbOffers() { return $("#optin") };
+    get cbNewsLetter() { return $("#uniform-newsletter") };
+    get cbOffers() { return $("#uniform-optin") };
     get txtFirstName() { return $("[name='firstname']") };
     get txtLastName() { return $("[name='lastname']") };
     get txtCompany() { return $("#company") };
@@ -30,10 +30,6 @@ class RegisterPage extends basePage {
     get btnRegister() { return $("#submitAccount") };
     get lblErrorMsg() {return ("//li[text()='{0}']")};
     
-    /**
-     * Enters all parameters to register new user
-     * @param {*} user data object which has user details 
-     */
 
     registerNewUser(user) {
 
@@ -51,10 +47,12 @@ class RegisterPage extends basePage {
         this.ddMonths.selectByAttribute("value", user.DOB.month)
         this.ddYears.selectByAttribute("value",user.DOB.year)
         if(user.Newsletter===true){
-            this.cbNewsLetter.click();
+            this.cbNewsLetter.moveTo()
+            this.cbNewsLetter.click()
         }
         if(user.offer ===true){
-            this.cbOffers.click();
+            this.cbOffers.moveTo()
+            this.cbOffers.click()
         }
 
         this.txtCompany.setValue(user.Company);
@@ -69,6 +67,11 @@ class RegisterPage extends basePage {
         this.txtMobPhone.setValue(user.MobNo)
         this.txtAlias.setValue(user.Alias)
     }
+
+    validateFormat(){
+
+    }
+
 }
 
 export default new RegisterPage();

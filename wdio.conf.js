@@ -1,6 +1,77 @@
 
-const fsExtra = require('fs-extra');
-var allure = require('allure-commandline');
+const fsExtra = require('fs-extra')
+
+let runTimeCapabilities = null
+
+//Setting environment based on user input
+let ENV = process.env.ENV || "Prod-Test1"
+
+// Setting browser arguments and maximum browser instance based on user input
+let runTimeBrowser = process.env.BROWSER || 'chrome'
+let maxBrowserInstance = parseInt(process.env.THREADS) || 1
+
+//Setting browser headless mode
+let headless = process.env.HEADLESS || 'false'
+
+//Setting browser arguments based on mode of run
+let chrome_browser_args = {}
+let firefox_browser_args = {}
+if (headless == 'true') {
+    chrome_browser_args = ['--headless', '--disable-extensions', '--allow-running-insecure-content', '--disable-dev-shm-usage', '--disable-gpu', '--no-sandbox', '--unlimited-storage', '--disable-notifications']
+    firefox_browser_args = ['-headless', '-width 1280', '-height 800', '–window-size=1280,800']
+} else {
+    chrome_browser_args = ['--no-sandbox', '--unlimited-storage', 'disable-infobars']
+    firefox_browser_args = []
+}
+
+//Setting firefox browser capabilities
+let firefoxCapabilities = {
+    browserName: 'firefox',
+    acceptInsecureCerts: true,
+    "moz:firefoxOptions": {
+        args: firefox_browser_args,
+        prefs: { 'permissions.default.geo': 1 }
+    }
+}
+
+//Setting chrome browser capabilities
+let chromeCapabilities = {
+    browserName: 'chrome',
+    acceptInsecureCerts: true,
+    'goog:chromeOptions': {
+        excludeSwitches: ["enable-automation"],
+        useAutomationExtension: false,
+        args: chrome_browser_args,
+        prefs: {
+            'credentials_enable_service': false,
+            'profile.password_manager_enabled': false
+        }
+    }
+}
+
+/**
+ * Setting browser capabilities based on user input on browser.
+ * If the browser input is not present, run on chrome
+ * If the browser input has unsupported browser, run on chrome
+ * If the browser input is 'multibrowser', all scripts will run on both firefox and chrome
+ * If the browser input is 'chrome', all scripts will run on chrome
+ * If the browser input is 'firefox', all scripts will run on firefox
+ */
+
+if (runTimeBrowser == 'chrome') {
+    runTimeCapabilities = [chromeCapabilities]
+
+} else if (runTimeBrowser == 'firefox') {
+    runTimeCapabilities = [firefoxCapabilities]
+
+} else if (runTimeBrowser == 'multibrowser') {
+    runTimeCapabilities = [firefoxCapabilities, chromeCapabilities]
+
+} else {
+    console.log('Browser is undefined, using chrome browser to run the tests')
+    runTimeCapabilities = [chromeCapabilities]
+}
+
 
 exports.config = {
     //
@@ -23,14 +94,19 @@ exports.config = {
     specs: [
         './test/specs/*.spec.js'
     ],
-    //
+
     // Patterns to exclude.
     exclude: [
         // 'path/to/excluded/files'
     ],
-    //
+
     //Environment
-    environment: process.env.ENV ? process.env.ENV: "Cloud-Test1",
+    environment: ENV,
+
+    browserMode: runTimeBrowser,
+
+    isHeadlessMode: headless,
+
     //
     // ============
     // Capabilities
@@ -47,48 +123,13 @@ exports.config = {
     // and 30 processes will get spawned. The property handles how many capabilities
     // from the same test should run tests.
     //
-    maxInstances: 3,
-    path: "/wd/hub",
-    capabilities: [
-        
-    // maxInstances can get overwritten per capability. So if you have an in-house Selenium
-    // grid with only 5 firefox instances available you can make sure that not more than
-    // 5 instances get started at a time.
-    {
-        maxInstances: 2,
-        browserName: 'chrome',
-        acceptInsecureCerts: true,
-        'goog:chromeOptions': {
-            excludeSwitches: ["enable-automation"],
-            useAutomationExtension: false,
-            args: ['--lang=en',
-                //'--window-size=412,732',
-                '--unlimited-storage',
-                '--no-sandbox',
-                '--disable-gpu',
-                '--disable-notifications',
-                'disable-infobars',
-            ],
-            prefs: {
-                'credentials_enable_service': false,
-                'profile.password_manager_enabled': false
-            },
-        },
-    },
-    {
-        maxInstances: 1,
-        browserName: 'internet explorer',
-            "se:ieOptions": {
-                acceptUntrustedCertificates: true,
-                "ie.ensureCleanSession": true,
-                ignoreProtectedModeSettings: true,
-                ignoreZoomSetting: true,
-                enablePersistentHover: true,
-                nativeEvents: false,
-                unexpectedAlertBehaviour: "accept"
-            }
-    }
-    ],
+    maxInstances: maxBrowserInstance,
+    //
+    // If you have trouble getting all important capabilities together, check out the
+    // Sauce Labs platform configurator - a great tool to configure your capabilities:
+    // https://docs.saucelabs.com/reference/platforms-configurator
+    //
+    capabilities: runTimeCapabilities,
     //
     // ===================
     // Test Configurations
@@ -98,6 +139,20 @@ exports.config = {
     // Level of logging verbosity: trace | debug | info | warn | error | silent
     logLevel: 'error',
     //
+    // Set specific log levels per logger
+    // loggers:
+    // - webdriver, webdriverio
+    // - @wdio/applitools-service, @wdio/browserstack-service, @wdio/devtools-service, @wdio/sauce-service
+    // - @wdio/mocha-framework, @wdio/jasmine-framework
+    // - @wdio/local-runner
+    // - @wdio/sumologic-reporter
+    // - @wdio/cli, @wdio/config, @wdio/sync, @wdio/utils
+    // Level of logging verbosity: trace | debug | info | warn | error | silent
+    // logLevels: {
+    //     webdriver: 'info',
+    //     '@wdio/applitools-service': 'info'
+    // },
+    //
     // If you only want to run your tests until a specific amount of tests have failed use
     // bail (default is 0 - don't bail, run all tests).
     bail: 0,
@@ -106,10 +161,10 @@ exports.config = {
     // with `/`, the base url gets prepended, not including the path portion of your baseUrl.
     // If your `url` parameter starts without a scheme or `/` (like `some/path`), the base url
     // gets prepended directly.
-    // baseUrl: 'http://automationpractice.com/index.php',
+    //baseUrl: 'http://automationpractice.com/index.php',
     //
     // Default timeout for all waitFor* commands.
-    waitforTimeout: 15000,
+    waitforTimeout: 10000,
     //
     // Default timeout in milliseconds for request
     // if browser driver or grid doesn't send response
@@ -126,6 +181,10 @@ exports.config = {
 
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
+    // see also: https://webdriver.io/docs/frameworks
+    //
+    // Make sure you have the wdio adapter package for the specific framework installed
+    // before running any tests.
     framework: 'mocha',
     //
     // The number of times to retry the entire specfile when it fails as a whole
@@ -147,15 +206,13 @@ exports.config = {
             disableWebdriverScreenshotsReporting: false,
         }]
     ],
+
     //
     // Options to be passed to Mocha.
     // See the full list at http://mochajs.org/
     mochaOpts: {
-        // Babel setup
-        require: ['@babel/register'],
         bail: true,
-        ui: 'bdd',
-        timeout: 180000
+        timeout: 1200000
     },
     //
     // =====
@@ -170,21 +227,30 @@ exports.config = {
      * @param {Object} config wdio configuration object
      * @param {Array.<Object>} capabilities list of capabilities details
      */
-    onPrepare: function (config, capabilities) {
+     onPrepare: function (config, capabilities) {
         console.log("Environment is: ", this.environment)
+        console.log("Browser mode: ", runTimeBrowser)
+        console.log("Max browser instance: ", maxBrowserInstance)
+        console.log("Headless: ", headless)
 
         //Deleting Old Report
         const dir1 = "./allure-report"
         const dir2 = "./allure-results"
+        const dir3 = "./.tmp"
 
         if (fsExtra.existsSync(dir1)) {
-            fsExtra.rmdir(dir1,{ recursive: true })
+            fsExtra.rmdir(dir1, { recursive: true })
             console.log(`${dir1} removed`)
         }
 
         if (fsExtra.existsSync(dir2)) {
-            fsExtra.rmdir(dir2,{ recursive: true })
+            fsExtra.rmdir(dir2, { recursive: true })
             console.log(`${dir2} removed`)
+        }
+
+        if (fsExtra.existsSync(dir3)) {
+            fsExtra.rmdir(dir3, { recursive: true })
+            console.log(`${dir3} removed`)
         }
     },
     /**
@@ -207,12 +273,7 @@ exports.config = {
      */
     // beforeSession: function (config, capabilities, specs) {
     // },
-    before: function () {
-        require('expect-webdriverio').setOptions({ trim: true })
-        browser.setTimeout({
-            'implicit': 10000
-        })
-    },
+    
     /**
      * Gets executed before test execution begins. At this point you can access to all global
      * variables like `browser`. It is the perfect place to define custom commands.
@@ -220,6 +281,37 @@ exports.config = {
      * @param {Array.<String>} specs        List of spec file paths that are to be run
      * @param {Object}         browser      instance of created browser/device session
      */
+
+    before: function () {
+        require('expect-webdriverio').setOptions({ trim: true })
+
+        browser.setTimeout({
+            'implicit': 2000,
+            'pageLoad': 30000 
+        })
+        
+        //Over writing "Click" function
+        browser.overwriteCommand('click', function (origClickFunction, { TIMEOUT = 10000
+        } = {}) {
+            this.waitForExist({
+                timeout: TIMEOUT,
+                timeoutMsg: 'Given element ' + this.selector + ' does NOT EXIST after ' + TIMEOUT + ' MiliSeconds'
+            });
+            this.scrollIntoView({ block: "center" })
+            browser.pause(100)
+            try {
+                this.waitForClickable({
+                    timeout: TIMEOUT,
+                    timeoutMsg: 'Given element ' + this.selector + ' is NOT Clickable after ' + TIMEOUT + ' MiliSeconds'
+                });
+
+                return origClickFunction()
+            } catch (err) {
+                throw err
+            }
+        }, true)
+
+    },
 
     /**
      * Runs before a WebdriverIO command gets executed.
@@ -256,11 +348,13 @@ exports.config = {
      */
     // afterTest: function(test, context, { error, result, duration, passed, retries }) {
     // },
+
     afterTest: function (test, context, { error, result, duration, passed, retries }) {
         if (error) {
             browser.takeScreenshot();
         }
     },
+
     /**
      * Hook that gets executed after the suite has ended
      * @param {Object} suite suite details
@@ -302,6 +396,7 @@ exports.config = {
      * @param {<Object>} results object containing test results
      */
     onComplete: function (exitCode, config, capabilities, results) {
+        var allure = require('allure-commandline');
         const reportError = new Error('Could not generate Allure report')
         const generation = allure(['generate', 'allure-results', '--clean'])
         return new Promise((resolve, reject) => {

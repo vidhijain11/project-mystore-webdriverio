@@ -1,63 +1,58 @@
-import homePage from "../pages/home.page"
+import landing from "../pages/landing.page"
 import loginPage from "../pages/login.page"
-import registerPage from "../pages/register.page"
-import data from "../testdata/account.data"
+import register from "../pages/register.page"
+import data from "../testdata/dataProvider"
+import allureReporter from '@wdio/allure-reporter'
+import snippet from "../helpers/snippet"
 
-describe('Scenario - Register a user and validate login and logout', () => {
+describe('Scenario - Register a new user and validate login and logout', () => {
 
     before('Launch application', () => {
         loginPage.open()
     });
 
+    it('TC01 : Should able to create new account and register successfully', () => {
 
-    it('Should able to Sign in and enter valid email id to create new account', () => {
-
-        homePage.btnSignIn.click();
+        allureReporter.addStep(`click button Sign in`)
+        landing.btnSignIn.click();
         expect(loginPage.txtEmailCreate).toBeDisplayed()
 
-        loginPage.txtEmailCreate.setValue(data._validUser.Email);
+        allureReporter.addStep(`Enter Email id - ${data.validUser.Email} to create new account.`)
+        loginPage.txtEmailCreate.setValue(data.validUser.Email);
         loginPage.lblEmailCreate.click();
-        //validate format of email
+
+        allureReporter.addStep(`Validate entered email id is a valid email id.`)
         expect(loginPage.isValidInput(loginPage.txtEmailCreate)).toBe(true)
 
+        allureReporter.addStep(`Click on button create an account.`)
         loginPage.btnCreateAccount.click();
-        //validate heading Create an account is displayed
-        expect(registerPage.hdCreateAcc).toBeDisplayed();
+        expect(register.hdCreateAcc).toBeDisplayed();
+
+        allureReporter.addStep(`Fill user details on registration form.`)
+        register.registerNewUser(data.validUser)
+        expect(loginPage.isValidInput(register.txtCustFirstName)).toBe(true)
+        expect(loginPage.isValidInput(register.txtCustLastName)).toBe(true)
+        expect(loginPage.isValidInput(register.txtPassword)).toBe(true)
+        expect(register.txtEmail).toHaveAttribute('value', data.validUser.Email);
+        expect(register.txtFirstName).toHaveElementProperty('value', data.validUser.FN);
+        expect(register.txtLastName).toHaveElementProperty('value', data.validUser.LN);
+
+        allureReporter.addStep(`Click on Register button.`)
+        register.btnRegister.click();
+
+        allureReporter.addStep(`Validate user first name and last name is displayed.`)
+        expect(landing.lblUserName).toHaveText(data.validUser.FN + " " + data.validUser.LN);
     });
 
-    it('Should able to fill registration form and register successfully', () => {
+    it('TC02 : Should able to Logout and Login again with new registered user.', () => {
 
-        registerPage.registerNewUser(data._validUser)
-        //validate format of First name, last name and password
-        expect(loginPage.isValidInput(registerPage.txtCustFirstName)).toBe(true)
-        expect(loginPage.isValidInput(registerPage.txtCustLastName)).toBe(true)
-        expect(loginPage.isValidInput(registerPage.txtPassword)).toBe(true)
-        //validate email is auto populated in personal information section.
-        expect(registerPage.txtEmail).toHaveAttribute('value', data._validUser.Email);
-        //validate first name and last name should be auto populated in address section.
-        expect(registerPage.txtFirstName).toHaveElementProperty('value', data._validUser.FN);
-        expect(registerPage.txtLastName).toHaveElementProperty('value', data._validUser.LN);
+        allureReporter.addStep(`Click on button sign out.`)
+        landing.btnSignOut.click();
+        expect(landing.btnSignIn).toBeClickable()
 
-        registerPage.btnRegister.click();
-        //validate user first name and last name on landing page
-        expect(homePage.lblUserName).toHaveText(data._validUser.FN + " " + data._validUser.LN);
-    });
-
-    it('Should able to Logout and Login again with new registered user ', () => {
-
-        homePage.btnSignOut.click();
-        expect(homePage.btnSignIn).toBeClickable()
-
-        homePage.btnSignIn.click();
-        loginPage.txtEmailSignIn.setValue(data._validUser.Email);
-        loginPage.txtPassword.setValue(data._validUser.Passwd);
-        //validate it is a valid email format
-        expect(loginPage.isValidInput(loginPage.txtEmailSignIn)).toBe(true)
-
-        loginPage.btnSignIn.click();
-        //validate user first name and last name on landing page
-        expect(homePage.lblUserName).toHaveText(data._validUser.FN + " " + data._validUser.LN);
-
+        allureReporter.addStep(`Sign in with new user.`)
+        snippet.signInWithValidUser(data.validUser)
+        
     });
 
 });
