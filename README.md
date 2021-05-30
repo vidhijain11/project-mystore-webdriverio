@@ -1,6 +1,6 @@
 ## project-mystore-webdriverio
 
-This repository contains TEST-SUITE for Sample Project
+UI automation using webdriverIO 
 
 ### Based on
 
