@@ -3,7 +3,7 @@ import data from "../testdata/dataProvider"
 import snippet from "../helpers/snippet"
 import allureReporter from '@wdio/allure-reporter'
 
-describe('Scenario - Add item to wishlist', () => {
+describe('SCN04 - Add item to wishlist', () => {
 
     before('Launch application', () => {
         landing.open()

@@ -4,7 +4,7 @@ import data from "../testdata/dataProvider"
 import snippet from "../helpers/snippet"
 import allureReporter from '@wdio/allure-reporter'
 
-describe('Scenario - Contact customer care and send message', () => {
+describe('SCN03 - Contact customer care and send message', () => {
 
     before('Launch application', () => {
         contactUs.open()

@@ -5,7 +5,7 @@ import data from "../testdata/dataProvider"
 import snippet from "../helpers/snippet"
 import allureReporter from '@wdio/allure-reporter'
 
-describe('Scenario - Add item to cart and checkout.', () => {
+describe('SCN02 - Add item to cart and checkout.', () => {
 
     before('Launch application', () => {
         loginPage.open()

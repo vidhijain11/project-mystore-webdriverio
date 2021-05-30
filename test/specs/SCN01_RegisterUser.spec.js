@@ -5,7 +5,7 @@ import data from "../testdata/dataProvider"
 import allureReporter from '@wdio/allure-reporter'
 import snippet from "../helpers/snippet"
 
-describe('Scenario - Register a new user and validate login and logout', () => {
+describe('SCN01 - Register a new user and validate login and logout', () => {
 
     before('Launch application', () => {
         loginPage.open()
